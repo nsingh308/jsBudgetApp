@@ -79,8 +79,7 @@ var uiController = (function(){
         },
         addListItem:function(obj,type){
             var html, newItem,element;
-            console.log(typeof type)
-            console.log(typeof 'exp')
+            
             if(type === 'inc'){
                 element = domString.incomeContainer;
                 html= '<div class="item clearfix" id="income-%id%">'+
@@ -113,6 +112,19 @@ var uiController = (function(){
            document.querySelector(element).insertAdjacentHTML('beforeend',newItem)
           
 
+        },
+        clearInputFields:function(){
+           
+            var fields, fieldsArr;
+            fields = document.querySelectorAll(domString.inputDescription + ', ' + domString.inputValue);
+            fieldsArr = Array.prototype.slice.call(fields)
+
+            fieldsArr.forEach(function(current, index, array){
+               
+                current.value="";
+            });
+
+            fields[0].focus();
         }
     }
     
@@ -133,6 +145,7 @@ var controller = (function(budgetCtrl, UICtrl){
         var newItem = budgetCtrl.addItem(input.type, input.description, input.value)
         
         UICtrl.addListItem(newItem,input.type)
+        UICtrl.clearInputFields();
         //budgetCtrl.testing();
 
     }
