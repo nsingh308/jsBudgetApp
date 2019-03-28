@@ -67,7 +67,23 @@ var budgetController = (function(){
             // calculate percentage expense = (total budge * expense )/100
             if(data.totals.inc > 0)
             data.percentage = Math.round((data.totals.exp / data.totals.inc )*100);
-        
+            
+        },
+        deleteItem : function(type, id){
+            
+            var ids, index;
+            //returns a fresh array of ids
+            ids = data.allItems[type].map(function(current){
+                return current.id
+            })
+            //returns index of provided element in the array
+            index = ids.indexOf(id)
+            
+            if(index!==-1){
+                data.allItems[type].splice(index,1);
+            }
+
+
         },
         getBudget: function(){
             return {
@@ -106,7 +122,8 @@ var uiController = (function(){
         budget :             '.budget__value',
         incomeTotal :        '.budget__income--value',
         expenseTotal:        '.budget__expenses--value',
-        percentageTotal:     '.budget__expenses--percentage'
+        percentageTotal:     '.budget__expenses--percentage',
+        container :           '.container'
     }
     
     return {
@@ -128,7 +145,7 @@ var uiController = (function(){
             
             if(type === 'inc'){
                 element = domString.incomeContainer;
-                html= '<div class="item clearfix" id="income-%id%">'+
+                html= '<div class="item clearfix" id="inc-%id%">'+
                         '<div class="item__description">%description%</div>'+
                             '<div class="right clearfix">'+
                                 '<div class="item__value">+ %value%</div>'+
@@ -140,7 +157,7 @@ var uiController = (function(){
             
             }else if (type === 'exp'){
                 element = domString.expenseContainer;
-                html= '<div class="item clearfix" id="expense-%id%">'+
+                html= '<div class="item clearfix" id="exp-%id%">'+
                         '<div class="item__description">%description%</div>'+
                             '<div class="right clearfix">'+
                             '<div class="item__value">- %value%</div>'+
@@ -158,6 +175,10 @@ var uiController = (function(){
            document.querySelector(element).insertAdjacentHTML('beforeend',newItem)
           
 
+        },
+        deleteListItem: function(id){
+            var el = document.getElementById(id)//node to be deleted.
+            el.parentNode.removeChild(el)//go up in the parent node and then delete child from there.
         },
         displayBudget : function(obj){
             
@@ -200,7 +221,7 @@ var controller = (function(budgetCtrl, UICtrl){
 
         budgetController.calculateBudge();
         var budget = budgetController.getBudget();
-        console.log(budget)
+        
         UICtrl.displayBudget(budget);
 
     }
@@ -221,7 +242,26 @@ var controller = (function(budgetCtrl, UICtrl){
         //budgetCtrl.testing();
 
     }
-    
+    var ctrlDeleteItem = function(e){
+        var itemId, splitID;
+        itemId = e.target.parentNode.parentNode.parentNode.parentNode.id;
+
+        //no other parent of icon have id. hence we are using id.
+
+        if (itemId){
+            
+            splitID = itemId.split('-')
+            
+            type = splitID[0]
+            ID = parseInt(splitID[1])
+            
+            budgetCtrl.deleteItem(type,ID)
+            UICtrl.deleteListItem(itemId)
+            updateBudget()
+
+        }
+      
+    }
     
     var setupEventListeners = function(){
         var DOM = UICtrl.getDomString();
@@ -231,6 +271,7 @@ var controller = (function(budgetCtrl, UICtrl){
                 ctrlAddItem();
             }
         });
+        document.querySelector(DOM.container).addEventListener('click',ctrlDeleteItem);
     }
     
    
